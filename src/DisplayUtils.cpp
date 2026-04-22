@@ -1,11 +1,11 @@
 #include "DisplayUtils.h"
 #include <cstdint>
 
+// display configuration
 const uint8_t DISP_ADDR = 0x3D;
-
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-
+// ICONS
 // weather icons
 static const unsigned char PROGMEM image_cloud_bits[] = {
     0x00, 0x00, 0x00, 0x07, 0xc0, 0x00, 0x08, 0x20, 0x00, 0x10, 0x10, 0x00,
@@ -78,8 +78,8 @@ static const unsigned char PROGMEM weather_menu_bits[] = {
 const unsigned char *menu_icons[3] = {score_menu_bits, snake_menu_bits,
                                       weather_menu_bits};
 
-// DISPLAY FUNCTIONS
 
+// DISPLAY FUNCTIONS
 // display initialization
 void initDisplay() {
   if (!display.begin(SSD1306_SWITCHCAPVCC, DISP_ADDR)) {
@@ -101,6 +101,9 @@ void turnOffDisplay() {
 
 // SCREENS
 // shutdown message
+/**
+  * @brief draws a shutdown pop-up
+  */
 void drawShutdownScreen() {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
@@ -117,6 +120,9 @@ void drawShutdownScreen() {
 }
 
 // wakeup message
+/**
+  * @brief draws a wakeup message
+  */
 void drawWakeupScreen() {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
@@ -136,6 +142,11 @@ void drawWakeupScreen() {
 }
 
 // main manu
+/**
+  * @brief draws menu UI.
+  *
+  * @param selectedIndex is the index of the currently selected app. 
+  */
 void drawMenu(int selectedIndex) {
   display.clearDisplay();
 
@@ -166,6 +177,13 @@ void drawMenu(int selectedIndex) {
 }
 
 // weather app
+/**
+  * @brief draws appropriate icons for the weather status.
+  *
+  * @param x the starting X coordinate on the display (0-127).
+  * @param y the starting Y coordinate on the display (0-63).
+  * @param condition the text condition returned by the API. 
+  */
 void drawWeatherStatusIcon(int x, int y, String condition) {
   //mapping openweathermap API to a single or more icons
   if (condition == "Clear") {

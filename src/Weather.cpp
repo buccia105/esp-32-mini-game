@@ -14,12 +14,16 @@ bool dataFetched = false;
 float currentTemp = 0.0;
 String weatherCondition = "Loading...";
 
-// Variables for the Exit Logic
+// variables for exit logic
 static unsigned long exitTimerStart = 0;
 static bool isHoldingExit = false;
 static bool weatherNeedsRedraw = true;
 const unsigned long EXIT_HOLD_TIME = 2000;
 
+// wi-fi connection dialogue
+/**
+  * @brief wireless connection feedback to user and process
+  */
 void connectToWiFi() {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
@@ -54,6 +58,10 @@ void connectToWiFi() {
   delay(1500);
 }
 
+// data fetching from API
+/**
+  * @brief data fetching
+  */
 void fetchWeatherData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
@@ -94,13 +102,19 @@ void fetchWeatherData() {
   }
 }
 
+// weather app
+/**
+  * @brief draws a wakeup message
+  * @param exitApp bool value to get the user intent.
+  * @param exitPin to define the button to check.
+  */
 void runWeatherApp(bool &exitApp, int exitPin) {
-  // 1. Connection logic
+  // connection logic
   if (!isWifiConnected) {
     connectToWiFi();
   }
 
-  // 2. Fetch Data (Only once after connecting)
+  // data fetching only if connected
   if (isWifiConnected && !dataFetched) {
     display.clearDisplay();
     display.setCursor(10, 25);
@@ -108,17 +122,19 @@ void runWeatherApp(bool &exitApp, int exitPin) {
     display.display();
 
     fetchWeatherData();
-    weatherNeedsRedraw = true; // Force redraw to show new data
+    weatherNeedsRedraw = true; // force redraw to show new data
   }
 
-  // 3. Exit logic with BTN_LEFT (D10)
-  bool leftPressed = digitalRead(exitPin) == HIGH;
+  // EXIT LOGIC WITH THE DEFINED PIN
+  bool exitPressed = digitalRead(exitPin) == HIGH;
 
-  if (leftPressed) {
+  //check for button hold
+  if (exitPressed) {
     if (!isHoldingExit) {
       isHoldingExit = true;
       exitTimerStart = millis();
-    } else {
+    } 
+    else {
       unsigned long heldDuration = millis() - exitTimerStart;
 
       if (heldDuration > 200) {
@@ -136,7 +152,7 @@ void runWeatherApp(bool &exitApp, int exitPin) {
         isHoldingExit = false;
         weatherNeedsRedraw = true;
 
-        // Reset state so it fetches fresh data next time you open the app
+        // reset data to get the new one on restart
         dataFetched = false;
 
         WiFi.disconnect();
@@ -144,38 +160,40 @@ void runWeatherApp(bool &exitApp, int exitPin) {
         return;
       }
     }
-  } else {
+  } 
+  
+  else {
     if (isHoldingExit) {
       isHoldingExit = false;
       weatherNeedsRedraw = true;
     }
   }
 
-  // 4. Draw the Interface
-  // ... all'interno di runWeatherApp, nella parte di disegno dell'interfaccia ---
-if (!isHoldingExit && weatherNeedsRedraw && dataFetched) {
+  // INTERFACE DRAWING
+
+  if (!isHoldingExit && weatherNeedsRedraw && dataFetched) {
     display.clearDisplay();
     display.setTextColor(SSD1306_WHITE); 
     
-    // Nome Città
+    // city name
     display.setCursor(0, 6);
     display.setTextSize(1);
     display.print(String(SECRET_CITY));
     
-    // Stato del meteo (testo)
+    // weather status
     display.setCursor(0, 16);
     display.print(weatherCondition);
     
-    // DISEGNO ICONA: Sotto il testo dello stato
-    // Coord X: 0, Coord Y: 22 (subito sotto il testo)
+    // icon drawing
     drawWeatherStatusIcon(0, 25, weatherCondition);
     
-    // Temperatura (Spostata a destra per fare spazio all'icona)
+    // temperature
     display.setCursor(45, 25);
     display.setTextSize(2);
     display.print(currentTemp, 1);
     display.print("C");
     
+    // instructions to exit
     display.setTextSize(1);
     display.setCursor(0, 54);
     display.print("Hold LEFT to Exit");

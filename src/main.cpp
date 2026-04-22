@@ -11,99 +11,108 @@
 #include "Snake.h"
 #include "Weather.h"
 
-// Button Definitions
+// pinout definitions
 #define BTN_CNT D8
 #define BTN_UP D9
 #define BTN_DOWN D7
 #define BTN_LEFT D10
 #define BTN_RIGHT D6
 
-// System States
+// system states for app selection
 enum SystemState { STATE_MENU, STATE_SCORES, STATE_SNAKE, STATE_WEATHER };
 
 SystemState currentState = STATE_MENU;
 int menuSelection = 1;
 
-// Variables for basic button edge detection
+// input edge detection
 bool lastLeftState = LOW;
 bool lastRightState = LOW;
 
-// Variables for Deep Sleep & Center Button logic
+// center button logic and sleep variables
 unsigned long buttonPressStartTime = 0;
 bool isHoldingCenter = false;
-const unsigned long SHUTDOWN_TIME = 2000;
+const unsigned long SHUTDOWN_TIME = 2000; // time to hold the cnt button for deep sleep initiation
 
+// sleep function
 void goToSleep() {
   Serial.println("Preparazione allo spegnimento...");
 
-  // 1. Mostra il feedback visivo di spegnimento
+  // feedback to user
   drawShutdownScreen();
 
-  // 2. Attesa obbligatoria del rilascio tasto (fondamentale per wake-up ext0)
+  // wait for relese
   while (digitalRead(BTN_CNT) == HIGH) {
     delay(10);
   }
 
-  // 3. Spegnimento software e hardware del display
+  // turn off the display
   turnOffDisplay();
-  delay(100); // Piccolo buffer per assicurare che il comando I2C sia inviato
+  delay(100); // buffer to ensure i2c command acknowledge
 
   Serial.println("Display OFF. Deep Sleep avviato.");
 
-  // 4. Configurazione risveglio e ingresso in Deep Sleep
+  // configuration for wake-up
   esp_sleep_enable_ext0_wakeup((gpio_num_t)BTN_CNT, 1);
   esp_deep_sleep_start();
 }
 
+// SETUP
 void setup() {
+  // serial configuration
   Serial.begin(115200);
   delay(1000);
 
+  // pinout configuration
   pinMode(BTN_CNT, INPUT);
   pinMode(BTN_UP, INPUT);
   pinMode(BTN_DOWN, INPUT);
   pinMode(BTN_LEFT, INPUT);
   pinMode(BTN_RIGHT, INPUT);
 
-  // Inizializzazione display
+  // display initialization
   initDisplay();
 
-  // Controlla se il dispositivo si sta svegliando dal Deep Sleep
+  // check for wake-up
   if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT0) {
     Serial.println("Risveglio rilevato.");
 
-    // Mostra la schermata di benvenuto
+    // user greeting
     drawWakeupScreen();
-
-    // La tiene visibile per 2 secondi
     delay(2000);
   }
 
-  // Carica il menu principale
+  // main menu vizualization
   drawMenu(menuSelection);
 }
 
+// MAIN LOOP
 void loop() {
   bool leftPressed = digitalRead(BTN_LEFT) == HIGH;
   bool rightPressed = digitalRead(BTN_RIGHT) == HIGH;
   bool cntPressed = digitalRead(BTN_CNT) == HIGH;
 
-  // --- LOGICA PULSANTE CENTRALE ---
+  // CENTER BUTTON LOGIC
+  // check for center press
   if (cntPressed) {
+    // verify long press
     if (!isHoldingCenter) {
       isHoldingCenter = true;
       buttonPressStartTime = millis();
-    } else {
+    } 
+    else {
       if (millis() - buttonPressStartTime >= SHUTDOWN_TIME) {
-        goToSleep();
+        goToSleep(); // initiate sleep
       }
     }
-  } else {
+  } 
+  
+  else {
     if (isHoldingCenter) {
       unsigned long pressDuration = millis() - buttonPressStartTime;
+      // check for short press
       if (pressDuration < SHUTDOWN_TIME) {
         if (currentState == STATE_MENU) {
-          // Switch to the selected app state
+          // switch system state
           if (menuSelection == 0)
             currentState = STATE_SCORES;
           else if (menuSelection == 1)
@@ -116,7 +125,7 @@ void loop() {
     }
   }
 
-  // --- NAVIGAZIONE MENU ---
+  // menu navigation
   if (currentState == STATE_MENU && !isHoldingCenter) {
     bool menuChanged = false;
 
@@ -138,7 +147,7 @@ void loop() {
   lastLeftState = leftPressed;
   lastRightState = rightPressed;
 
-  // --- APP EXECUTION ---
+  // APP EXECUTION
   if (currentState == STATE_WEATHER) {
     bool exitApp = false;
     runWeatherApp(exitApp, BTN_LEFT);
