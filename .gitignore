@@ -1,0 +1,12 @@
+.pio
+.clangd
+.vscode
+.cache
+compile_commands.json
+tmp.cpp
+
+
+aaa_backup/
+
+# Ignore my passwords!
+include/credential.h
