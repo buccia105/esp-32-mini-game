@@ -24,9 +24,9 @@ A battery-powered, pocket-sized smart display and gaming console built on the Se
 This project is built using **PlatformIO**.
 
 ### 1. Clone the repository
-\`\`\`bash
+```bash
 git clone https://github.com/buccia105/esp-32-mini-game.git
-\`\`\`
+```
 
 ### 2. Configure Credentials
 To protect sensitive data, Wi-Fi passwords and API keys are ignored by Git. You must create your own credentials file before compiling:
@@ -34,7 +34,7 @@ To protect sensitive data, Wi-Fi passwords and API keys are ignored by Git. You 
 1. Navigate to the `include/` folder.
 2. Create a new file named `credentials.h`.
 3. Add the following code and insert your own details:
-\`\`\`cpp
+```cpp
 #ifndef CREDENTIALS_H
 #define CREDENTIALS_H
 
@@ -46,11 +46,10 @@ To protect sensitive data, Wi-Fi passwords and API keys are ignored by Git. You 
 #define SECRET_COUNTRY "IT"
 
 #endif
-\`\`\`
+```
 
 ### 3. Build and Upload
 Open the project folder in VS Code with the PlatformIO extension. PlatformIO will automatically download the required dependencies (Adafruit GFX, Adafruit SSD1306, and ArduinoJson) based on the `platformio.ini` file. Click the **Upload** arrow to flash the board.
 
 ## 📜 License
-This project is licensed under the [GNU GPLv3 License](LICENSE) - see the LICENSE file for details. 
-*(Note: Change this to CC BY-NC 4.0 if you choose the other route!)*
+This project is licensed under the [GNU GPLv3 License](LICENSE) - see the LICENSE file for details.
