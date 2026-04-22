@@ -141,7 +141,7 @@ void loop() {
   // --- APP EXECUTION ---
   if (currentState == STATE_WEATHER) {
     bool exitApp = false;
-    runWeatherApp(exitApp);
+    runWeatherApp(exitApp, BTN_LEFT);
 
     if (exitApp) {
       currentState = STATE_MENU;

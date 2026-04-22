@@ -2,6 +2,6 @@
 #define WEATHER_H
 
 void initWeatherApp();
-void runWeatherApp(bool &exitApp);
+void runWeatherApp(bool &exitApp, int exitPin);
 
 #endif

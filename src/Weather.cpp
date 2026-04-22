@@ -94,7 +94,7 @@ void fetchWeatherData() {
   }
 }
 
-void runWeatherApp(bool &exitApp) {
+void runWeatherApp(bool &exitApp, int exitPin) {
   // 1. Connection logic
   if (!isWifiConnected) {
     connectToWiFi();
@@ -112,7 +112,7 @@ void runWeatherApp(bool &exitApp) {
   }
 
   // 3. Exit logic with BTN_LEFT (D10)
-  bool leftPressed = digitalRead(D10) == HIGH;
+  bool leftPressed = digitalRead(exitPin) == HIGH;
 
   if (leftPressed) {
     if (!isHoldingExit) {
