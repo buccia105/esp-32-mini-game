@@ -1,6 +1,6 @@
 #include "Scores.h"
 #include "DisplayUtils.h"
-#include <Preferences.h>
+#include <Preferences.h>    // ESP32 library to save data in Non-Volatile Storage
 
 #ifndef BTN_UP
   #define BTN_UP    D9
@@ -13,21 +13,27 @@
 #define EXIT_HOLD_TIME 2000
 
 Preferences prefs;
+
+// Hold scores
 ScoreRecord highScores[3][10];
 const char* diffNames[] = {"EASY", "NORMAL", "HARD"};
 
 static int currentDifficultyView = 1;
 
+// Handle "hold to exit"
 static unsigned long exitHoldStartTime = 0;
 static bool isHoldingExit = false;
 
 static bool lastLeftBtn = false;
 static bool lastRightBtn = false;
 
+// Initialize scores
 void initScores() {
   prefs.begin("scores", false);
+  
   for (int d = 0; d < 3; d++) {
     for (int i = 0; i < 10; i++) {
+      // d = difficulty, r = rank
       String key = "d" + String(d) + "r" + String(i);
       String val = prefs.getString(key.c_str(), "---,0");
       
@@ -39,10 +45,12 @@ void initScores() {
   prefs.end();
 }
 
+// Main loop 
 void drawScoresApp(bool &exitApp) {
   bool currLeft = digitalRead(BTN_LEFT) == HIGH;
   bool currRight = digitalRead(BTN_RIGHT) == HIGH;
 
+  // Exit logic
   if (currLeft && currRight) {
     if (!isHoldingExit) {
       isHoldingExit = true;
@@ -55,6 +63,7 @@ void drawScoresApp(bool &exitApp) {
   } else {
     isHoldingExit = false;
     
+    // Navigation logic
     if (currRight && !lastRightBtn) {
       currentDifficultyView = (currentDifficultyView + 1) % 3;
     }
@@ -66,13 +75,16 @@ void drawScoresApp(bool &exitApp) {
   lastLeftBtn = currLeft;
   lastRightBtn = currRight;
 
+  // Rendering UI
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
 
+  // Draw the top 5 scores for the selected difficulty
   for (int i = 0; i < 5; i++) {
     int yPos = 12 + (i * 10); 
 
+    // print rank and name
     display.setCursor(0, yPos);
     display.print(i + 1);
     display.print(".");
@@ -85,11 +97,14 @@ void drawScoresApp(bool &exitApp) {
     display.print(scoreStr);
   }
 
+  // Separator line
   display.drawFastVLine(78, 12, 52, SSD1306_WHITE);
 
+  // Right side infos
   display.setCursor(89, 12);
   display.print("RANK:");
 
+  // difficulty name
   String diffStr = diffNames[currentDifficultyView];
   int textX = 79 + (49 - (diffStr.length() * 6)) / 2; 
   display.setCursor(textX, 22);
@@ -103,6 +118,7 @@ void drawScoresApp(bool &exitApp) {
   display.setCursor(92, 54);
   display.print("EXIT");
 
+  // Exit progress bar rendering
   if (isHoldingExit) {
     unsigned long elapsed = millis() - exitHoldStartTime;
     int barWidth = (elapsed * SCREEN_WIDTH) / EXIT_HOLD_TIME; 
@@ -118,11 +134,13 @@ void drawScoresApp(bool &exitApp) {
   display.display();
 }
 
+// Check if a given score is high enough
 bool isHighScore(int score, int difficulty) {
 
   return score > highScores[difficulty][9].score;
 }
 
+// save the score
 void saveNewScore(int score, int difficulty, const char* name) {
 
   int pos = 9;
@@ -135,9 +153,11 @@ void saveNewScore(int score, int difficulty, const char* name) {
     highScores[difficulty][i] = highScores[difficulty][i-1];
   }
 
+  // insert score and name
   strcpy(highScores[difficulty][pos].name, name);
   highScores[difficulty][pos].score = score;
 
+  // Save the updated leaderboard to the NVS
   prefs.begin("scores", false);
   for (int i = 0; i < 10; i++) {
     String key = "d" + String(difficulty) + "r" + String(i);
