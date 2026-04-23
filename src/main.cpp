@@ -147,15 +147,35 @@ void loop() {
   lastLeftState = leftPressed;
   lastRightState = rightPressed;
 
-  // APP EXECUTION
+// APP EXECUTION
   if (currentState == STATE_WEATHER) {
     bool exitApp = false;
     runWeatherApp(exitApp, BTN_LEFT);
 
     if (exitApp) {
       currentState = STATE_MENU;
-      drawMenu(menuSelection); // Redraw the menu when returning
+      drawMenu(menuSelection);
     }
   }
+
+  if (currentState == STATE_SNAKE) {
+    bool exitApp = false;
+    runSnakeApp(exitApp);
+
+    if (exitApp) {
+      currentState = STATE_MENU;
+      drawMenu(menuSelection);
+    }
+  }
+
+  if (currentState == STATE_SCORES) {
+    bool exitApp = false;
+    drawScoresApp(exitApp);
+    if (exitApp) {
+      currentState = STATE_MENU;
+      drawMenu(menuSelection);
+    }
+  }
+  
   delay(20);
 }
