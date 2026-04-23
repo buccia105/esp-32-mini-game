@@ -278,8 +278,12 @@ void runSnakeApp(bool &exitApp) {
         if (initials[nameCharIdx] < 'A') initials[nameCharIdx] = 'Z';
         delay(150);
       }
-      if (digitalRead(BTN_RIGHT) == HIGH || digitalRead(BTN_LEFT) == HIGH) {
+      if (digitalRead(BTN_RIGHT) == HIGH) {
         nameCharIdx = (nameCharIdx + 1) % 3;
+        delay(200);
+      }
+      if (digitalRead(BTN_LEFT) == HIGH) {
+        nameCharIdx = (nameCharIdx + 2) % 3;
         delay(200);
       }
       // Save score and name
