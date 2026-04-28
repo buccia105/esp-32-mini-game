@@ -2,6 +2,9 @@
 
 A battery-powered, pocket-sized smart display and gaming console built on the Seeed Studio XIAO ESP32-S3. This project features a custom multi-app menu system, deep sleep power management, and live Wi-Fi data fetching.
 
+## DEMO
+[![Watch the video](https://img.youtube.com/vi/7x8AL38ud48/maxresdefault.jpg)](https://youtu.be/7x8AL38ud48)
+
 ## 🌟 Features
 * **Custom UI:** A dynamic, inverted-color 3-app menu system (Scores, Snake, Weather).
 * **Live Weather:** Connects to Wi-Fi to fetch real-time temperature and weather conditions via the OpenWeatherMap API.
